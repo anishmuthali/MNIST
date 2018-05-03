@@ -3,7 +3,6 @@ import numpy as np
 from keras import models
 from keras import layers
 from keras import optimizers
-from keras import regularizers
 import matplotlib.pyplot as plt
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
