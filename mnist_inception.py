@@ -17,6 +17,7 @@ def one_hot(vec,num_classes=10):
     return oh_vec
 
 def inception_block(X, layers):
+    assert len(layers)==3
     row1 = layers.Conv2D(layers[0],(1,1),padding="same",activation="relu")(X)
     row2 = layers.Conv2D(layers[1],(1,1),padding="same",activation="relu")(X)
     row2 = layers.Conv2D(layers[1],(3,3),padding="same",activation="relu")(row2)
@@ -43,6 +44,35 @@ x_test = test_data
 x_test = x_test.reshape((x_test.shape[0],28,28,1))
 y_test = one_hot(test_labels)
 
-X = Input(shape=(28,28,1))
-X = MaxPooling2D((2,2),strides=(2,2))(X)
+inputs = models.Input(shape=(28,28,1))
+X = inputs
+X = layers.MaxPooling2D((2,2),strides=(2,2))(X)
 X = inception_block(X,[32,32,32])
+X = layers.MaxPooling2D((2,2),strides=(2,2))(X)
+X = inception_block(X,[64,64,64])
+X = inception_block(X,[64,64,64])
+X = inception_block(X,[32,32,32])
+X = layers.Flatten()(X)
+X = layers.Dense(128,activation="relu")(X)
+X = layers.Dense(64,activation="relu")(X)
+outputs = layers.Dense(10,activation="softmax")(X)
+
+epochs=20
+model = models.Model(inputs=inputs,outputs=outputs)
+optimizer = optimizers.Adam(lr=0.001,beta_1=0.9,beta_2=0.999)
+model.compile(optimizer=optimizer,loss='categorical_crossentropy',metrics=['accuracy'])
+history = model.fit(x_train,y_train,batch_size=512,epochs=epochs,verbose=2,validation_data=(x_validate,y_validate))
+print("Finished fitting.")
+epochs = range(1, epochs + 1)
+hist_dict = history.history
+plt.title("Accuracy vs Epochs")
+plt.plot(epochs, hist_dict["acc"], 'bo', label="Training")
+plt.plot(epochs, hist_dict["val_acc"], 'go', label="Validation")
+plt.legend(loc="best")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+
+print("Checking accuracy on test set...")
+acc = model.evaluate(x_test, y_test, batch_size=512)
+print("Accuracy on test set: " + str(acc[1]))
+plt.show()
