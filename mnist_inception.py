@@ -16,16 +16,16 @@ def one_hot(vec,num_classes=10):
         oh_vec[i,vec[i]] = 1
     return oh_vec
 
-def inception_block(X, layers):
-    assert len(layers)==3
-    row1 = layers.Conv2D(layers[0],(1,1),padding="same",activation="relu")(X)
-    row2 = layers.Conv2D(layers[1],(1,1),padding="same",activation="relu")(X)
-    row2 = layers.Conv2D(layers[1],(3,3),padding="same",activation="relu")(row2)
-    row3 = layers.Conv2D(layers[2],(1,1),padding="same",activation="relu")(X)
-    row3 = layers.Conv2D(layers[2],(5,5),padding="same",activation="relu")(row3)
-    row4 = layers.MaxPooling2D((3,3),strides=(1,1))(X)
-    row4 = layers.Conv2D(X._keras_shape[2],(1,1),padding="same",activation="relu")(row4)
-    result = layers.Concatenate([row1,row2,row3,row4])
+def inception_block(X, layer):
+    row1_val = layer[0]
+    row2_val = layer[1]
+    row3_val = layer[2]
+    row1 = layers.Conv2D(row1_val,(1,1),padding="same",activation="relu")(X)
+    row2 = layers.Conv2D(row2_val,(1,1),padding="same",activation="relu")(X)
+    row2 = layers.Conv2D(row2_val,(3,3),padding="same",activation="relu")(row2)
+    row3 = layers.Conv2D(row3_val,(1,1),padding="same",activation="relu")(X)
+    row3 = layers.Conv2D(row3_val,(5,5),padding="same",activation="relu")(row3)
+    result = layers.concatenate([row1,row2,row3])
     return result
 
 (train_data, train_labels), (test_data, test_labels) = mnist.load_data()
@@ -52,6 +52,7 @@ X = layers.MaxPooling2D((2,2),strides=(2,2))(X)
 X = inception_block(X,[64,64,64])
 X = inception_block(X,[64,64,64])
 X = inception_block(X,[32,32,32])
+X = layers.MaxPooling2D((3,3),strides=(2,2))(X)
 X = layers.Flatten()(X)
 X = layers.Dense(128,activation="relu")(X)
 X = layers.Dense(64,activation="relu")(X)
