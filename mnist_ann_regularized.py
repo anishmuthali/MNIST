@@ -18,7 +18,7 @@ def one_hot(vec,num_classes=10):
 (train_data, train_labels), (test_data, test_labels) = mnist.load_data()
 perm = np.random.permutation(train_data.shape[0])
 train_data = train_data[perm,:,:]
-train_labels=train_labels[perm,:,:]
+train_labels=train_labels[perm]
 num_train = 54000
 x_train = train_data[:num_train,:,:]
 x_train = x_train.reshape(x_train.shape[0],784)
@@ -32,20 +32,20 @@ x_test = x_test.reshape(x_test.shape[0],784)
 y_test = one_hot(test_labels)
 
 model = models.Sequential()
-model.add(layers.Dense(56,kernel_regularizer=regularizers.l2(0.001), activation='relu',input_shape=(784,)))
-model.add(layers.Dropout(0.5))
-model.add(layers.Dense(96,kernel_regularizer=regularizers.l2(0.001), activation='relu'))
-model.add(layers.Dropout(0.5))
-model.add(layers.Dense(144,kernel_regularizer=regularizers.l2(0.001), activation='relu'))
-model.add(layers.Dropout(0.5))
-model.add(layers.Dense(96,kernel_regularizer=regularizers.l2(0.001), activation='relu'))
-model.add(layers.Dropout(0.5))
-model.add(layers.Dense(56,kernel_regularizer=regularizers.l2(0.001), activation='relu'))
+model.add(layers.Dense(56,kernel_regularizer=regularizers.l2(0.0005), activation='relu',input_shape=(784,)))
+model.add(layers.Dropout(0.15))
+model.add(layers.Dense(96,kernel_regularizer=regularizers.l2(0.0005), activation='relu'))
+model.add(layers.Dropout(0.15))
+model.add(layers.Dense(144,kernel_regularizer=regularizers.l2(0.0005), activation='relu'))
+model.add(layers.Dropout(0.15))
+model.add(layers.Dense(96,kernel_regularizer=regularizers.l2(0.0005), activation='relu'))
+model.add(layers.Dropout(0.15))
+model.add(layers.Dense(56,kernel_regularizer=regularizers.l2(0.0005), activation='relu'))
 model.add(layers.Dense(10,activation='softmax'))
 
 optimizer = optimizers.Adam(lr=0.001,beta_1=0.9,beta_2=0.999)
 model.compile(optimizer=optimizer,loss='categorical_crossentropy',metrics=['accuracy'])
-epochs = 20
+epochs = 40
 
 history = model.fit(x=x_train,y=y_train,epochs=epochs,batch_size=512,verbose=2,validation_data=(x_validate,y_validate))
 print("Finished fitting.")
